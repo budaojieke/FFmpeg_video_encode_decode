@@ -1,0 +1,8 @@
+*.pc
+*.version
+/ffmpeg
+/ffmpeg_g
+/ffplay
+/ffplay_g
+/ffprobe
+/ffprobe_g
