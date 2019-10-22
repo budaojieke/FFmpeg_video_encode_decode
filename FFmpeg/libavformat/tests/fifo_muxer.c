@@ -21,7 +21,7 @@
 
 #include <stdlib.h>
 #include "libavutil/opt.h"
-#include "libavutil/times.h"
+#include "libavutil/time.h"
 #include "libavutil/avassert.h"
 #include "libavformat/avformat.h"
 #include "libavformat/url.h"

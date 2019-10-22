@@ -25,7 +25,7 @@
 #include <AL/alc.h>
 
 #include "libavutil/opt.h"
-#include "libavutil/times.h"
+#include "libavutil/time.h"
 #include "libavformat/internal.h"
 #include "avdevice.h"
 

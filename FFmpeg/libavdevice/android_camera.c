@@ -41,7 +41,7 @@
 #include "libavutil/parseutils.h"
 #include "libavutil/pixfmt.h"
 #include "libavutil/threadmessage.h"
-#include "libavutil/times.h"
+#include "libavutil/time.h"
 
 #include "version.h"
 

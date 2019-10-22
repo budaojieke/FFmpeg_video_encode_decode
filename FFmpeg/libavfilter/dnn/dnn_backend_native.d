@@ -11,4 +11,5 @@ libavfilter/dnn/dnn_backend_native.o: \
  libavutil/x86/emms.h libavutil/attributes.h libavutil/cpu.h \
  libavutil/libm.h libavutil/dict.h libavutil/log.h libavformat/version.h \
  libavutil/version.h libavutil/avassert.h \
- libavfilter/dnn/dnn_backend_native_layer_pad.h
+ libavfilter/dnn/dnn_backend_native_layer_conv2d.h \
+ libavfilter/dnn/dnn_backend_native_layers.h

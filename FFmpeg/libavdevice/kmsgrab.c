@@ -34,7 +34,7 @@
 #include "libavutil/opt.h"
 #include "libavutil/pixfmt.h"
 #include "libavutil/pixdesc.h"
-#include "libavutil/times.h"
+#include "libavutil/time.h"
 
 #include "libavformat/avformat.h"
 #include "libavformat/internal.h"

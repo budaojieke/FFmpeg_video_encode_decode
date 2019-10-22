@@ -22,7 +22,7 @@
 #include "libavutil/mathematics.h"
 #include "libavutil/avstring.h"
 #include "libavutil/intreadwrite.h"
-#include "libavutil/times.h"
+#include "libavutil/time.h"
 
 #include "avformat.h"
 #include "network.h"

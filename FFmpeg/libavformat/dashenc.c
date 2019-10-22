@@ -32,7 +32,7 @@
 #include "libavutil/mathematics.h"
 #include "libavutil/opt.h"
 #include "libavutil/rational.h"
-#include "libavutil/times.h"
+#include "libavutil/time.h"
 #include "libavutil/time_internal.h"
 
 #include "av1.h"

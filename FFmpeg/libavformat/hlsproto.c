@@ -26,7 +26,7 @@
  */
 
 #include "libavutil/avstring.h"
-#include "libavutil/times.h"
+#include "libavutil/time.h"
 #include "avformat.h"
 #include "avio_internal.h"
 #include "internal.h"

@@ -22,7 +22,7 @@
 #include "libavutil/avassert.h"
 #include "libavutil/parseutils.h"
 #include "libavutil/opt.h"
-#include "libavutil/times.h"
+#include "libavutil/time.h"
 
 #include "internal.h"
 #include "network.h"

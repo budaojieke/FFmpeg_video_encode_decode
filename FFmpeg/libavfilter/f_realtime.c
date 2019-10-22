@@ -19,7 +19,7 @@
  */
 
 #include "libavutil/opt.h"
-#include "libavutil/times.h"
+#include "libavutil/time.h"
 #include "avfilter.h"
 #include "internal.h"
 #include <float.h>

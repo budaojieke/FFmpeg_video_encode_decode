@@ -63,6 +63,24 @@ static inline unsigned int v4l2_get_height(struct v4l2_format *fmt)
     return V4L2_TYPE_IS_MULTIPLANAR(fmt->type) ? fmt->fmt.pix_mp.height : fmt->fmt.pix.height;
 }
 
+static AVRational v4l2_get_sar(V4L2Context *ctx)
+{
+    struct AVRational sar = { 0, 1 };
+    struct v4l2_cropcap cropcap;
+    int ret;
+
+    memset(&cropcap, 0, sizeof(cropcap));
+    cropcap.type = ctx->type;
+
+    ret = ioctl(ctx_to_m2mctx(ctx)->fd, VIDIOC_CROPCAP, &cropcap);
+    if (ret)
+        return sar;
+
+    sar.num = cropcap.pixelaspect.numerator;
+    sar.den = cropcap.pixelaspect.denominator;
+    return sar;
+}
+
 static inline unsigned int v4l2_resolution_changed(V4L2Context *ctx, struct v4l2_format *fmt2)
 {
     struct v4l2_format *fmt1 = &ctx->format;
@@ -172,12 +190,14 @@ static int v4l2_handle_event(V4L2Context *ctx)
     if (full_reinit) {
         s->output.height = v4l2_get_height(&out_fmt);
         s->output.width = v4l2_get_width(&out_fmt);
+        s->output.sample_aspect_ratio = v4l2_get_sar(&s->output);
     }
 
     reinit = v4l2_resolution_changed(&s->capture, &cap_fmt);
     if (reinit) {
         s->capture.height = v4l2_get_height(&cap_fmt);
         s->capture.width = v4l2_get_width(&cap_fmt);
+        s->capture.sample_aspect_ratio = v4l2_get_sar(&s->capture);
     }
 
     if (full_reinit || reinit)
@@ -582,16 +602,16 @@ int ff_v4l2_context_enqueue_packet(V4L2Context* ctx, const AVPacket* pkt)
     return ff_v4l2_buffer_enqueue(avbuf);
 }
 
-int ff_v4l2_context_dequeue_frame(V4L2Context* ctx, AVFrame* frame)
+int ff_v4l2_context_dequeue_frame(V4L2Context* ctx, AVFrame* frame, int timeout)
 {
     V4L2Buffer* avbuf = NULL;
 
     /*
-     * blocks until:
+     * timeout=-1 blocks until:
      *  1. decoded frame available
      *  2. an input buffer is ready to be dequeued
      */
-    avbuf = v4l2_dequeue_v4l2buf(ctx, -1);
+    avbuf = v4l2_dequeue_v4l2buf(ctx, timeout);
     if (!avbuf) {
         if (ctx->done)
             return AVERROR_EOF;

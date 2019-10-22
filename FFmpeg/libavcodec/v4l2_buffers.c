@@ -35,6 +35,7 @@
 #include "v4l2_m2m.h"
 
 #define USEC_PER_SEC 1000000
+static AVRational v4l2_timebase = { 1, USEC_PER_SEC };
 
 static inline V4L2m2mContext *buf_to_m2mctx(V4L2Buffer *buf)
 {
@@ -48,32 +49,37 @@ static inline AVCodecContext *logger(V4L2Buffer *buf)
     return buf_to_m2mctx(buf)->avctx;
 }
 
+static inline AVRational v4l2_get_timebase(V4L2Buffer *avbuf)
+{
+    V4L2m2mContext *s = buf_to_m2mctx(avbuf);
+
+    if (s->avctx->pkt_timebase.num)
+        return s->avctx->pkt_timebase;
+    return s->avctx->time_base;
+}
+
 static inline void v4l2_set_pts(V4L2Buffer *out, int64_t pts)
 {
-    V4L2m2mContext *s = buf_to_m2mctx(out);
-    AVRational v4l2_timebase = { 1, USEC_PER_SEC };
     int64_t v4l2_pts;
 
     if (pts == AV_NOPTS_VALUE)
         pts = 0;
 
     /* convert pts to v4l2 timebase */
-    v4l2_pts = av_rescale_q(pts, s->avctx->time_base, v4l2_timebase);
+    v4l2_pts = av_rescale_q(pts, v4l2_get_timebase(out), v4l2_timebase);
     out->buf.timestamp.tv_usec = v4l2_pts % USEC_PER_SEC;
     out->buf.timestamp.tv_sec = v4l2_pts / USEC_PER_SEC;
 }
 
 static inline int64_t v4l2_get_pts(V4L2Buffer *avbuf)
 {
-    V4L2m2mContext *s = buf_to_m2mctx(avbuf);
-    AVRational v4l2_timebase = { 1, USEC_PER_SEC };
     int64_t v4l2_pts;
 
     /* convert pts back to encoder timebase */
     v4l2_pts = (int64_t)avbuf->buf.timestamp.tv_sec * USEC_PER_SEC +
                         avbuf->buf.timestamp.tv_usec;
 
-    return av_rescale_q(v4l2_pts, v4l2_timebase, s->avctx->time_base);
+    return av_rescale_q(v4l2_pts, v4l2_timebase, v4l2_get_timebase(avbuf));
 }
 
 static enum AVColorPrimaries v4l2_get_color_primaries(V4L2Buffer *buf)
@@ -345,10 +351,18 @@ static int v4l2_buffer_swframe_to_buf(const AVFrame *frame, V4L2Buffer *out)
     switch (pixel_format) {
     case V4L2_PIX_FMT_YUV420M:
     case V4L2_PIX_FMT_YVU420M:
+#ifdef V4L2_PIX_FMT_YUV422M
     case V4L2_PIX_FMT_YUV422M:
+#endif
+#ifdef V4L2_PIX_FMT_YVU422M
     case V4L2_PIX_FMT_YVU422M:
+#endif
+#ifdef V4L2_PIX_FMT_YUV444M
     case V4L2_PIX_FMT_YUV444M:
+#endif
+#ifdef V4L2_PIX_FMT_YVU444M
     case V4L2_PIX_FMT_YVU444M:
+#endif
     case V4L2_PIX_FMT_NV12M:
     case V4L2_PIX_FMT_NV21M:
     case V4L2_PIX_FMT_NV12MT_16X16:
@@ -404,7 +418,6 @@ int ff_v4l2_buffer_avframe_to_buf(const AVFrame *frame, V4L2Buffer *out)
 
 int ff_v4l2_buffer_buf_to_avframe(AVFrame *frame, V4L2Buffer *avbuf)
 {
-    V4L2m2mContext *s = buf_to_m2mctx(avbuf);
     int ret;
 
     av_frame_unref(frame);
@@ -421,10 +434,12 @@ int ff_v4l2_buffer_buf_to_avframe(AVFrame *frame, V4L2Buffer *avbuf)
     frame->color_range = v4l2_get_color_range(avbuf);
     frame->color_trc = v4l2_get_color_trc(avbuf);
     frame->pts = v4l2_get_pts(avbuf);
+    frame->pkt_dts = AV_NOPTS_VALUE;
 
-    /* these two values are updated also during re-init in v4l2_process_driver_event */
-    frame->height = s->output.height;
-    frame->width = s->output.width;
+    /* these values are updated also during re-init in v4l2_process_driver_event */
+    frame->height = avbuf->context->height;
+    frame->width = avbuf->context->width;
+    frame->sample_aspect_ratio = avbuf->context->sample_aspect_ratio;
 
     /* 3. report errors upstream */
     if (avbuf->buf.flags & V4L2_BUF_FLAG_ERROR) {

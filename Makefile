@@ -22,7 +22,7 @@ STATIC_LIBS =
 
 CXXFLAGS   +=  -I/FFmpeg
 LDFLAGS    +=  -L lib
-LDFLAGS    +=  -Bstatic -lavdevice -lavfilter -lavformat -lavcodec -lavutil -lswscale -lswresample -lz -llzma
+LDFLAGS    +=  -Bstatic -lavdevice -lavfilter -lavformat -lavcodec -lavutil -lswscale -lswresample -lz -llzma -lx264 -lx265
 
 all: compile link
 
@@ -33,5 +33,5 @@ link: $(objects)
 
 clean:
 	rm -f $(TARGET) $(objects) $(dependence)
-
+	rm -f *.o
 .PHONY: clean

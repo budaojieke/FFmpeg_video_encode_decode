@@ -26,7 +26,7 @@
 
 #include "libavutil/internal.h"
 #include "libavutil/opt.h"
-#include "libavutil/times.h"
+#include "libavutil/time.h"
 
 #include "libavformat/avformat.h"
 #include "libavformat/internal.h"

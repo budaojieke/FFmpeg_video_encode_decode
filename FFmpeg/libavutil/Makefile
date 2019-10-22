@@ -71,7 +71,7 @@ HEADERS = adler32.h                                                     \
           spherical.h                                                   \
           stereo3d.h                                                    \
           threadmessage.h                                               \
-          times.h                                                        \
+          time.h                                                        \
           timecode.h                                                    \
           timestamp.h                                                   \
           tree.h                                                        \
@@ -152,7 +152,7 @@ OBJS = adler32.o                                                        \
        spherical.o                                                      \
        stereo3d.o                                                       \
        threadmessage.o                                                  \
-       times.o                                                           \
+       time.o                                                           \
        timecode.o                                                       \
        tree.o                                                           \
        twofish.o                                                        \

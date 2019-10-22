@@ -40,7 +40,7 @@
 #include <alsa/asoundlib.h>
 
 #include "libavutil/internal.h"
-#include "libavutil/times.h"
+#include "libavutil/time.h"
 
 
 #include "libavformat/internal.h"

@@ -21,7 +21,7 @@
 
 #include "libavutil/avassert.h"
 #include "libavutil/opt.h"
-#include "libavutil/times.h"
+#include "libavutil/time.h"
 #include "libavutil/thread.h"
 #include "libavutil/threadmessage.h"
 #include "avformat.h"

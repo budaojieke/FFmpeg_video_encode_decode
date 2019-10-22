@@ -38,7 +38,7 @@
 #include "libavutil/avstring.h"
 #include "libavutil/parseutils.h"
 #include "libavutil/mathematics.h"
-#include "libavutil/times.h"
+#include "libavutil/time.h"
 #include "libavutil/time_internal.h"
 #include "libavutil/timestamp.h"
 

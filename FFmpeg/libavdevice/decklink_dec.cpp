@@ -40,7 +40,7 @@ extern "C" {
 #include "libavutil/common.h"
 #include "libavutil/imgutils.h"
 #include "libavutil/intreadwrite.h"
-#include "libavutil/times.h"
+#include "libavutil/time.h"
 #include "libavutil/mathematics.h"
 #include "libavutil/reverse.h"
 #include "avdevice.h"

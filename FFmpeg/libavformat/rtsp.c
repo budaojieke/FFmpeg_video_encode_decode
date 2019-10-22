@@ -28,7 +28,7 @@
 #include "libavutil/random_seed.h"
 #include "libavutil/dict.h"
 #include "libavutil/opt.h"
-#include "libavutil/times.h"
+#include "libavutil/time.h"
 #include "avformat.h"
 #include "avio_internal.h"
 
@@ -1317,6 +1317,9 @@ static int rtsp_send_cmd_with_content_async(AVFormatContext *s,
     RTSPState *rt = s->priv_data;
     char buf[4096], *out_buf;
     char base64buf[AV_BASE64_SIZE(sizeof(buf))];
+
+    if (!rt->rtsp_hd_out)
+        return ENOTCONN;
 
     /* Add in RTSP headers */
     out_buf = buf;

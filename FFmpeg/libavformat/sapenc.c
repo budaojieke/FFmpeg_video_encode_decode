@@ -25,7 +25,7 @@
 #include "libavutil/avstring.h"
 #include "libavutil/dict.h"
 #include "libavutil/intreadwrite.h"
-#include "libavutil/times.h"
+#include "libavutil/time.h"
 #include "internal.h"
 #include "network.h"
 #include "os_support.h"

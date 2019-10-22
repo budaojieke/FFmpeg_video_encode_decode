@@ -131,7 +131,8 @@ static av_cold int libdav1d_init(AVCodecContext *c)
     s.allocator.alloc_picture_callback = libdav1d_picture_allocator;
     s.allocator.release_picture_callback = libdav1d_picture_release;
     s.frame_size_limit = c->max_pixels;
-    s.apply_grain = dav1d->apply_grain;
+    if (dav1d->apply_grain >= 0)
+        s.apply_grain = dav1d->apply_grain;
 
     s.n_tile_threads = dav1d->tile_threads
                      ? dav1d->tile_threads
@@ -259,6 +260,8 @@ static int libdav1d_receive_frame(AVCodecContext *c, AVFrame *frame)
     else
         frame->format = c->pix_fmt = pix_fmt[p->p.layout][p->seq_hdr->hbd];
 
+    frame->reordered_opaque = c->reordered_opaque;
+
     // match timestamps and packet size
     frame->pts = frame->best_effort_timestamp = p->m.timestamp;
 #if FF_API_PKT_PTS
@@ -342,7 +345,7 @@ static av_cold int libdav1d_close(AVCodecContext *c)
 static const AVOption libdav1d_options[] = {
     { "tilethreads", "Tile threads", OFFSET(tile_threads), AV_OPT_TYPE_INT, { .i64 = 0 }, 0, DAV1D_MAX_TILE_THREADS, VD },
     { "framethreads", "Frame threads", OFFSET(frame_threads), AV_OPT_TYPE_INT, { .i64 = 0 }, 0, DAV1D_MAX_FRAME_THREADS, VD },
-    { "filmgrain", "Apply Film Grain", OFFSET(apply_grain), AV_OPT_TYPE_BOOL, { .i64 = 1 }, 0, 1, VD },
+    { "filmgrain", "Apply Film Grain", OFFSET(apply_grain), AV_OPT_TYPE_BOOL, { .i64 = -1 }, -1, 1, VD },
     { NULL }
 };
 

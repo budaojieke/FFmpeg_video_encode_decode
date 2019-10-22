@@ -28,6 +28,7 @@
 #include "libavutil/opt.h"
 #include "libavcodec/avcodec.h"
 #include "libavcodec/decode.h"
+#include "libavcodec/internal.h"
 
 #include "v4l2_context.h"
 #include "v4l2_m2m.h"
@@ -133,9 +134,14 @@ static int v4l2_receive_frame(AVCodecContext *avctx, AVFrame *frame)
     AVPacket avpkt = {0};
     int ret;
 
-    ret = ff_decode_get_packet(avctx, &avpkt);
-    if (ret < 0 && ret != AVERROR_EOF)
-        return ret;
+    if (s->buf_pkt.size) {
+        avpkt = s->buf_pkt;
+        memset(&s->buf_pkt, 0, sizeof(AVPacket));
+    } else {
+        ret = ff_decode_get_packet(avctx, &avpkt);
+        if (ret < 0 && ret != AVERROR_EOF)
+            return ret;
+    }
 
     if (s->draining)
         goto dequeue;
@@ -144,6 +150,8 @@ static int v4l2_receive_frame(AVCodecContext *avctx, AVFrame *frame)
     if (ret < 0) {
         if (ret != AVERROR(EAGAIN))
            return ret;
+
+        s->buf_pkt = avpkt;
         /* no input buffers available, continue dequeing */
     }
 
@@ -161,8 +169,9 @@ static int v4l2_receive_frame(AVCodecContext *avctx, AVFrame *frame)
     }
 
 dequeue:
-    av_packet_unref(&avpkt);
-    return ff_v4l2_context_dequeue_frame(capture, frame);
+    if (!s->buf_pkt.size)
+        av_packet_unref(&avpkt);
+    return ff_v4l2_context_dequeue_frame(capture, frame, -1);
 }
 
 static av_cold int v4l2_decode_init(AVCodecContext *avctx)
@@ -207,7 +216,10 @@ static av_cold int v4l2_decode_init(AVCodecContext *avctx)
 
 static av_cold int v4l2_decode_close(AVCodecContext *avctx)
 {
-    return ff_v4l2_m2m_codec_end(avctx->priv_data);
+    V4L2m2mPriv *priv = avctx->priv_data;
+    V4L2m2mContext* s = priv->context;
+    av_packet_unref(&s->buf_pkt);
+    return ff_v4l2_m2m_codec_end(priv);
 }
 
 #define OFFSET(x) offsetof(V4L2m2mPriv, x)
@@ -242,8 +254,9 @@ static const AVOption options[] = {
         .close          = v4l2_decode_close, \
         .bsfs           = bsf_name, \
         .capabilities   = AV_CODEC_CAP_HARDWARE | AV_CODEC_CAP_DELAY | AV_CODEC_CAP_AVOID_PROBING, \
+        .caps_internal  = FF_CODEC_CAP_SETS_PKT_DTS, \
         .wrapper_name   = "v4l2m2m", \
-    };
+    }
 
 M2MDEC(h264,  "H.264", AV_CODEC_ID_H264,       "h264_mp4toannexb");
 M2MDEC(hevc,  "HEVC",  AV_CODEC_ID_HEVC,       "hevc_mp4toannexb");

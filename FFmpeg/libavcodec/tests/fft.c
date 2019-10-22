@@ -41,7 +41,7 @@
 #include "libavutil/lfg.h"
 #include "libavutil/log.h"
 #include "libavutil/mathematics.h"
-#include "libavutil/times.h"
+#include "libavutil/time.h"
 
 #if AVFFT
 #include "libavcodec/avfft.h"
